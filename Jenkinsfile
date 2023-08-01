@@ -15,14 +15,13 @@ def cancelPreviousBuilds() {
 }
 
 pipeline {
-
-  cancelPreviousBuilds() 
   
     agent any
     
     stages {
        stage('check out scm') {
           steps {
+                cancelPreviousBuilds() 
                 checkout scm
              }
        }
