@@ -1,5 +1,9 @@
 
-def cancelPreviousBuilds() {
+pipeline {
+  
+    agent any
+
+    def cancelPreviousBuilds() {
  // Check for other instances of this particular build, cancel any that are older than the current one
  def jobName = env.JOB_NAME
  def currentBuildNumber = env.BUILD_NUMBER.toInteger()
@@ -13,10 +17,6 @@ def cancelPreviousBuilds() {
  }
  }
 }
-
-pipeline {
-  
-    agent any
     
     stages {
        stage('check out scm') {
