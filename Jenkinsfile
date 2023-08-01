@@ -1,38 +1,30 @@
+
+def abortPreviousRunningBuilds() {
+  def hi = Hudson.instance
+  def pname = env.JOB_NAME.split('/')[0]
+
+  hi.getItem(pname).getItem(env.JOB_BASE_NAME).getBuilds().each{ build ->
+    def exec = build.getExecutor()
+
+    if (build.number != currentBuild.number && exec != null) {
+      exec.interrupt(
+        Result.ABORTED,
+        new CauseOfInterruption.UserInterruption(
+          "Aborted by #${currentBuild.number}"
+        )
+      )
+      println("Aborted previous running build #${build.number}")
+    } else {
+      println("Build is not running or is current build, not aborting - #${build.number}")
+    }
+  }
+}
+
 pipeline {
     
     agent any
     
     stages {
-        stage('Trigger New Build') {
-            steps {
-                // Trigger the new build
-                build job: env.JOB_NAME
-                echo "env.JOB_NAME"
-            }
-        }
-        
-        stage('Cancel Old Builds') {
-            steps {
-                script {
-                    // Wait for a few seconds to ensure the new build starts
-                    sleep 5
-
-                    // Get the current build number
-                    def currentBuildNumber = env.BUILD_NUMBER.toInteger()
-                    echo "currentBuildNumber"
-                    // Get the list of all builds of the current job
-                    def allBuilds = Jenkins.instance.getItemByFullName(env.JOB_NAME).builds
-                    echo "allBuilds"
-                    // Cancel any old builds that are running and older than the current build
-                    allBuilds.each { build ->
-                        if (build.number.toInteger() != currentBuildNumber && build.isBuilding()) {
-                            sh "curl -X POST ${env.JENKINS_URL}/job/${env.JOB_NAME}/${build.number}/stop"
-                            echo "Old build ${build.number} canceled."
-                        }
-                    }
-                }
-            }
-        }
        stage('check out scm') {
           steps {
                 checkout scm
