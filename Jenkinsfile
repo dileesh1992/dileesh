@@ -1,27 +1,23 @@
 
-def abortPreviousRunningBuilds() {
-  def hi = Hudson.instance
-  def pname = env.JOB_NAME.split('/')[0]
+def cancelPreviousBuilds() {
+ // Check for other instances of this particular build, cancel any that are older than the current one
+ def jobName = env.JOB_NAME
+ def currentBuildNumber = env.BUILD_NUMBER.toInteger()
+ def currentJob = Jenkins.instance.getItemByFullName(jobName)
 
-  hi.getItem(pname).getItem(env.JOB_BASE_NAME).getBuilds().each{ build ->
-    def exec = build.getExecutor()
-
-    if (build.number != currentBuild.number && exec != null) {
-      exec.interrupt(
-        Result.ABORTED,
-        new CauseOfInterruption.UserInterruption(
-          "Aborted by #${currentBuild.number}"
-        )
-      )
-      println("Aborted previous running build #${build.number}")
-    } else {
-      println("Build is not running or is current build, not aborting - #${build.number}")
-    }
-  }
+ // Loop through all instances of this particular job/branch
+ for (def build : currentJob.builds) {
+ if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
+ echo "Older build still queued. Sending kill signal to build number: ${build.number}"
+ build.doStop()
+ }
+ }
 }
 
 pipeline {
-    
+
+  cancelPreviousBuilds() 
+  
     agent any
     
     stages {
