@@ -7,6 +7,7 @@ pipeline {
             steps {
                 // Trigger the new build
                 build job: env.JOB_NAME
+                echo "env.JOB_NAME"
             }
         }
         
@@ -18,10 +19,10 @@ pipeline {
 
                     // Get the current build number
                     def currentBuildNumber = env.BUILD_NUMBER.toInteger()
-
+                    echo "currentBuildNumber"
                     // Get the list of all builds of the current job
                     def allBuilds = Jenkins.instance.getItemByFullName(env.JOB_NAME).builds
-
+                    echo "allBuilds"
                     // Cancel any old builds that are running and older than the current build
                     allBuilds.each { build ->
                         if (build.number.toInteger() != currentBuildNumber && build.isBuilding()) {
