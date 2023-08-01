@@ -21,7 +21,6 @@ pipeline {
     stages {
        stage('check out scm') {
           steps {
-                cancelPreviousBuilds() 
                 checkout scm
              }
        }
