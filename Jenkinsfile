@@ -1,8 +1,5 @@
 def buildNumber = env.BUILD_NUMBER as int
-for (int i = 1; i < buildNumber; i++)
-{
-    milestone(i)
-}
+if (buildNumber > 1) milestone(buildNumber - 1)
 milestone(buildNumber)
 
 pipeline {
