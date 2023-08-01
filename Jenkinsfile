@@ -1,4 +1,4 @@
-options { disableConcurrentBuilds abortPrevious: true } 
+properties([disableConcurrentBuilds(abortPrevious: true)]) 
 
 
 pipeline {
